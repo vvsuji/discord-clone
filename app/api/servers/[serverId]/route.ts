@@ -23,7 +23,6 @@ export async function DELETE(
 		return NextResponse.json(server);
 	} catch (error) {
 		console.log('[SERVER_ID_DELETE]', error);
-
 		return new NextResponse('Internal Error', { status: 500 });
 	}
 }
