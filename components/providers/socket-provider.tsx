@@ -1,10 +1,16 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { io as ClientIO } from 'socket.io-client';
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useState,
+	ReactNode,
+} from 'react';
+import { io, Socket } from 'socket.io-client';
 
 type SocketContextType = {
-	socket: any | null;
+	socket: Socket | null;
 	isConnected: boolean;
 };
 
@@ -17,26 +23,44 @@ export const useSocket = () => {
 	return useContext(SocketContext);
 };
 
-export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-	const [socket, setSocket] = useState(null);
+type SocketProviderProps = {
+	children: ReactNode;
+};
+
+export const SocketProvider = ({ children }: SocketProviderProps) => {
+	const [socket, setSocket] = useState<Socket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
 
 	useEffect(() => {
-		const socketInstance = new (ClientIO as any)(
-			process.env.NEXT_PUBLIC_SITE_URL!,
-			{
-				path: '/api/socket/io',
-				addTrailingSlash: false,
-			},
-		);
+		const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+		if (!siteUrl) {
+			console.error('NEXT_PUBLIC_SITE_URL environment variable is not set.');
+			return;
+		}
+
+		const socketInstance = io(siteUrl, {
+			path: '/api/socket/io',
+		});
+
 		socketInstance.on('connect', () => {
 			setIsConnected(true);
+			console.log('Socket connected');
 		});
+
 		socketInstance.on('disconnect', () => {
 			setIsConnected(false);
+			console.log('Socket disconnected');
 		});
+
+		socketInstance.on('connect_error', (err) => {
+			console.error('Connection error:', err);
+		});
+
 		setSocket(socketInstance);
-		return () => socketInstance.disconnect();
+
+		return () => {
+			socketInstance.disconnect();
+		};
 	}, []);
 
 	return (
