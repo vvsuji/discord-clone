@@ -100,7 +100,7 @@ export default async function handler(
 				},
 				data: {
 					fileUrl: null,
-					content: '[Message deleted]',
+					content: 'This message has been deleted.',
 					deleted: true,
 				},
 				include: {

@@ -35,6 +35,7 @@ export const DeleteChannelModal = () => {
 			});
 			await axios.delete(url);
 			onClose();
+			router.refresh();
 			router.push(`/servers/${server?.id}`);
 		} catch (error) {
 			console.log(error);
@@ -65,7 +66,7 @@ export const DeleteChannelModal = () => {
 							Cancel
 						</Button>
 						<Button disabled={isLoading} variant='primary' onClick={onClick}>
-							Delete
+							Confirm
 						</Button>
 					</div>
 				</DialogFooter>
